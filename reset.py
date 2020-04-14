@@ -42,7 +42,7 @@ def delete_sub_key(key0, current_key, sub_key="", arch_key=0):
             sub_key = winreg.EnumKey(open_key, 0)
             try:
                 winreg.DeleteKey(open_key, sub_key)
-                print("Removed %s\\%s " % (current_key, sub_key))
+                print("Removed key %s\\%s " % (current_key, sub_key))
             except OSError:
                 delete_sub_key(key0, current_key, sub_key)
                 # No extra delete here since each call
@@ -50,7 +50,7 @@ def delete_sub_key(key0, current_key, sub_key="", arch_key=0):
 
         winreg.DeleteKey(open_key, "")
         open_key.Close()
-        print("Removed %s" % current_key)
+        print("Removed key %s" % current_key)
     except FileNotFoundError:
         pass
 
@@ -63,13 +63,17 @@ def do_reset(base_dir, sub_dir=""):
                 if sub_dir:
                     current_dir = os.path.join(current_dir, sub_dir)
                 try:
-                    shutil.rmtree(os.path.join(current_dir, eval_dir))
+                    eval_dir_ = os.path.join(current_dir, eval_dir)
+                    print("Deleted directory " + eval_dir_)
+                    shutil.rmtree(eval_dir_)
                 except FileNotFoundError:
                     pass
                 options_dir = os.path.join(current_dir, "options")
                 for opt in options:
                     try:
-                        os.remove(os.path.join(options_dir, opt))
+                        option_file = os.path.join(options_dir, opt)
+                        print("Deleted file " + option_file)
+                        os.remove(option_file)
                     except FileNotFoundError:
                         pass
 
@@ -81,9 +85,9 @@ def reset_linux():
     os.remove(os.path.join(os.getenv("HOME"), ".java", ".userPrefs", "prefs.xml"))
     shutil.rmtree(os.path.join(os.getenv("HOME"), ".java", ".userPrefs", "jetbrains"))
 
+
 def reset():
-    import six
-    if six.PY3:
+    if sys.version_info > (3,):
         if sys.platform.startswith("win"):
             reset_windows()
         elif sys.platform.startswith("linux"):
